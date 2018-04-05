@@ -5,10 +5,16 @@
 
     <TextView
         android:id="@+id/title_view"
+        android:textSize="@dimen/list_title_size"
+        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <TextView
         android:id="@+id/due_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/percent_off"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

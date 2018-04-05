@@ -55,10 +55,12 @@ public class RestaurantListAdapter extends BaseAdapter
 
         TextView title = v.findViewById(R.id.title_view);
         TextView dueDate = v.findViewById(R.id.due_date);
+        TextView percentOff = v.findViewById(R.id.percent_off);
         Restaurant restaurant = (Restaurant) getItem(i);
 
         title.setText(restaurant.getName());
         dueDate.setText(restaurant.getAddress());
+        percentOff.setText(Integer.toString(restaurant.getPercentOff()));
 
         return v;
     }

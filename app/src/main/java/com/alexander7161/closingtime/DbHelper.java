@@ -53,18 +53,22 @@ public class DbHelper extends SQLiteOpenHelper
                         "ADDRESS TEXT" +
                         ");");
                 sqLiteDatabase.execSQL("CREATE TABLE RESTAURANTSHALFOFF (" +
+                        "ID INTEGER NOT NULL PRIMARY KEY," +
                         "IDRESTAURANT INTEGER NOT NULL," +
                         "DAYSOFWEEK INTEGER NOT NULL," +
                         "PERCENTOFF INTEGER NOT NULL," +
                         "CLOSINGTIME TIME NOT NULL," +
                         "HALFOFFPERIOD TIME NOT NULL," +
-                        "PRIMARY KEY (IDRESTAURANT)," +
-                        "FOREIGN KEY (IDRESTAURANT) REFERENCES RESTAURANT(IDRESTAURANT)\n" +
+                        "FOREIGN KEY (IDRESTAURANT) REFERENCES RESTAURANTS(ID)" +
                         ");");
                 sqLiteDatabase.execSQL("INSERT INTO RESTAURANTS VALUES" +
-                        "(1, 'Wasabi', 'Kingsway');");
-                sqLiteDatabase.execSQL("INSERT INTO RESTAURANTSHALFOFF VALUES" +
-                        "(1, 12345, 50, '20:30', '00:30');");
+                        "(1, 'Wasabi', 'Kingsway')," +
+                        "(2, 'Wasabi', 'Borough');");
+                sqLiteDatabase.execSQL("INSERT INTO RESTAURANTSHALFOFF VALUES " +
+                        "(1, 1, 12345, 50, '20:30', '00:30')," +
+                        "(2, 2, 123456, 50, '21:30', '00:30')," +
+                        "(3, 2, 7, 50, '20:00', '00:30')" +
+                        ";");
             case 1:
 
             case 2:
@@ -79,7 +83,7 @@ public class DbHelper extends SQLiteOpenHelper
     Query method to retrieve the list of incomplete Tasks in the database an an ArrayList
      */
 
-    public ArrayList<Restaurant> getIncompleteTasks()
+    public ArrayList<Restaurant> getAllRestaurants(DbHelper dbHelper)
     {
         ArrayList<Restaurant> output = new ArrayList<>();
 
@@ -87,13 +91,15 @@ public class DbHelper extends SQLiteOpenHelper
         if(db == null) return output;
 
         //Store result of SQL query in Cursor object
-        Cursor rawTasks = db.rawQuery("SELECT * FROM RESTAURANTS;",null);
+        Cursor rawTasks = db.rawQuery("SELECT * " +
+                "FROM RESTAURANTS"
+                ,null);
 
         //Iterate over all tasks in Cursor, adding them to ArrayList<Restaurant> output
         if(rawTasks.moveToFirst())
         {
             do {
-                output.add(new Restaurant(rawTasks)); //Construct a new Restaurant using the cursor, and add it to the ArrayList
+                output.add(new Restaurant(rawTasks, dbHelper)); //Construct a new Restaurant using the cursor, and add it to the ArrayList
             } while (rawTasks.moveToNext());
         }
 
@@ -102,31 +108,23 @@ public class DbHelper extends SQLiteOpenHelper
         return output;
     }
 
-    /**
-     * Get a single task by it's task id. Used for loading a task to the edit task activity.
-     */
-    public Restaurant getTask(long taskId)
+    public Cursor getRestaurantDetails(Restaurant restaurant)
     {
+        Cursor rawDetails = null;
+
         SQLiteDatabase db = getReadableDatabase();
-        if(db == null) return null;
+        if(db == null) return rawDetails;
+        //Store result of SQL query in Cursor object
+        rawDetails = db.rawQuery("SELECT R.ID, R.NAME, R.ADDRESS, H.PERCENTOFF, H.DAYSOFWEEK, H.CLOSINGTIME, H.HALFOFFPERIOD " +
+                "FROM RESTAURANTS R " +
+                "JOIN" +
+                "(SELECT *" +
+                " FROM RESTAURANTSHALFOFF" +
+                ") H" +
+                " ON R.ID = H.IDRESTAURANT " +
+                "WHERE R.ID=" + restaurant.getId(),null);
 
-        //Make an SQL query
-        Cursor result = db.query(
-                "RESTAURANTS",                    // To the table "Tasks"
-                null,                    // All columns
-                "ID = ?",               // Where id = ? (a parameter)
-                new String[]{taskId + ""},      // set the parameter to taskId
-                null,
-                null,
-                null
-        );
-
-        //Construct new Restaurant object from result of Cursor and return it.
-        if(result.moveToFirst())
-        {
-            return new Restaurant(result);
-        }else{
-            return null;
-        }
+        return rawDetails;
     }
+
 }

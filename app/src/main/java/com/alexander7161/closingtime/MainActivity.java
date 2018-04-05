@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private void refreshTasks()
     {
         DbHelper dbHelper = new DbHelper(getApplicationContext());
-        restaurants = dbHelper.getIncompleteTasks();
+        restaurants = dbHelper.getAllRestaurants(dbHelper);
         listAdapter.setTasks(restaurants);
         listAdapter.notifyDataSetInvalidated();
     }
@@ -83,7 +83,14 @@ public class MainActivity extends AppCompatActivity {
         //If the task has a message, display it in the dialog box
         if(restaurant.getAddress() != null && restaurant.getAddress().length() > 0)
         {
-            dialogBuilder.setMessage(restaurant.getAddress());
+            dialogBuilder.setMessage(restaurant.getAddress() +
+                    " M: " + restaurant.getClosingTime(0) +
+                    " T: " + restaurant.getClosingTime(1) +
+                    " W: " + restaurant.getClosingTime(2) +
+                    " T: " + restaurant.getClosingTime(3) +
+                    " F: " + restaurant.getClosingTime(4) +
+                    " S: " + restaurant.getClosingTime(5) +
+                    " S: " + restaurant.getClosingTime(6));
         }
         dialogBuilder.setCancelable(true);
         AlertDialog dialog = dialogBuilder.create();
