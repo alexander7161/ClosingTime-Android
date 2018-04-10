@@ -1,22 +1,29 @@
 package com.alexander7161.closingtime;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 
-public class RestaurantListAdapter extends BaseAdapter
-{
+public class RestaurantListAdapter extends BaseAdapter {
+
+    private Context context;
     //Data
     private Activity activity;
     private ArrayList<Restaurant> restaurants = null;
 
-    public RestaurantListAdapter(Activity activity, ArrayList<Restaurant> restaurants)
+    public RestaurantListAdapter(Context context, Activity activity, ArrayList<Restaurant> restaurants)
     {
+        this.context = context;
         this.activity = activity;
         this.restaurants = restaurants;
     }
@@ -55,12 +62,23 @@ public class RestaurantListAdapter extends BaseAdapter
 
         TextView title = v.findViewById(R.id.title_view);
         TextView dueDate = v.findViewById(R.id.due_date);
-        TextView percentOff = v.findViewById(R.id.percent_off);
-        Restaurant restaurant = (Restaurant) getItem(i);
+        TextView todayTime = v.findViewById(R.id.today_time);
+        final Restaurant restaurant = (Restaurant) getItem(i);
 
         title.setText(restaurant.getName());
         dueDate.setText(restaurant.getAddress());
-        percentOff.setText(Integer.toString(restaurant.getPercentOff()));
+        todayTime.setText(restaurant.getCurrentDiscount());
+
+        Button navigateButton = v.findViewById(R.id.navigate_button);
+
+//        navigateButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                Uri gmmIntentUri = Uri.parse("google.navigation:q=" + restaurant.getLongAddress());
+//                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+//                mapIntent.setPackage("com.google.android.apps.maps");
+//                context.startActivity(mapIntent);
+//            }
+//        });
 
         return v;
     }

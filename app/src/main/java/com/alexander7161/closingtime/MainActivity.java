@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         //find views
         listView = findViewById(R.id.restaurantListView);
         //set up adapter
-        listAdapter = new RestaurantListAdapter(this,restaurants);
+        listAdapter = new RestaurantListAdapter(getApplicationContext(), this,restaurants);
         listView.setAdapter(listAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private void refreshTasks()
     {
         DbHelper dbHelper = new DbHelper(getApplicationContext());
+        dbHelper.insertWasabiRestaurants();
         restaurants = dbHelper.getAllRestaurants(dbHelper);
         listAdapter.setTasks(restaurants);
         listAdapter.notifyDataSetInvalidated();

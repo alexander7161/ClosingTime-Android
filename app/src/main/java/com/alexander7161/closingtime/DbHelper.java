@@ -5,6 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteTableLockedException;
+import android.util.Log;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -48,9 +51,10 @@ public class DbHelper extends SQLiteOpenHelper
             case 0:
                 //create intiial database using SQL
                 sqLiteDatabase.execSQL("CREATE TABLE RESTAURANTS (" +
-                        "ID INTEGER PRIMARY KEY," +
-                        "NAME TEXT," +
-                        "ADDRESS TEXT" +
+                        "ID INTEGER PRIMARY KEY NOT NULL," +
+                        "NAME TEXT NOT NULL," +
+                        "ADDRESS TEXT NOT NULL," +
+                        "LONGADDRESS TEXT NOT NULL" +
                         ");");
                 sqLiteDatabase.execSQL("CREATE TABLE RESTAURANTSHALFOFF (" +
                         "ID INTEGER NOT NULL PRIMARY KEY," +
@@ -62,8 +66,8 @@ public class DbHelper extends SQLiteOpenHelper
                         "FOREIGN KEY (IDRESTAURANT) REFERENCES RESTAURANTS(ID)" +
                         ");");
                 sqLiteDatabase.execSQL("INSERT INTO RESTAURANTS VALUES" +
-                        "(1, 'Wasabi', 'Kingsway')," +
-                        "(2, 'Wasabi', 'Borough');");
+                        "(1, 'Wasabi', 'Kingsway', 'Wasabi 19 kingsway, Holborn, WC2B 6UN')," +
+                        "(2, 'Wasabi', 'Borough', 'wasabi 59-61 Borough High St, London SE1 1NE');");
                 sqLiteDatabase.execSQL("INSERT INTO RESTAURANTSHALFOFF VALUES " +
                         "(1, 1, 12345, 50, '20:30', '00:30')," +
                         "(2, 2, 123456, 50, '21:30', '00:30')," +
@@ -125,6 +129,16 @@ public class DbHelper extends SQLiteOpenHelper
                 "WHERE R.ID=" + restaurant.getId(),null);
 
         return rawDetails;
+    }
+
+    public void insertWasabiRestaurants() {
+        try {
+            JSONObject json = JsonReader.readJsonFromUrl("http://motyar.info/webscrapemaster/api/?url=https://wasabi.uk.com/50-30-minutes-closing&xpath=//div[@id=node-1656]/div/div/div/div/p[4]/a");
+            Log.d("Json", json.toString());
+            Log.d("id", json.get("id").toString());
+        } catch (Exception e ) {
+
+        }
     }
 
 }
