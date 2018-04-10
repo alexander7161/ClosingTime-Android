@@ -5,8 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
@@ -53,7 +57,7 @@ public class RestaurantListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
+    public View getView(final int i, View view, ViewGroup viewGroup) {
         View v = view;
         if(v == null)
         {
@@ -71,15 +75,44 @@ public class RestaurantListAdapter extends BaseAdapter {
 
         Button navigateButton = v.findViewById(R.id.navigate_button);
 
-//        navigateButton.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                Uri gmmIntentUri = Uri.parse("google.navigation:q=" + restaurant.getLongAddress());
-//                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-//                mapIntent.setPackage("com.google.android.apps.maps");
-//                context.startActivity(mapIntent);
-//            }
-//        });
+        navigateButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Uri gmmIntentUri = Uri.parse("google.navigation:q=" + restaurant.getLongAddress());
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                context.startActivity(mapIntent);
+            }
+        });
+
+        v.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                taskClicked((Restaurant) getItem(i));
+            }
+        });
 
         return v;
+    }
+
+    private void taskClicked(final Restaurant restaurant)
+    {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+
+
+        //If the task has a message, display it in the dialog box
+        if(restaurant.getAddress() != null && restaurant.getAddress().length() > 0)
+        {
+            dialogBuilder.setMessage(restaurant.getAddress() +
+                    " M: " + restaurant.getClosingTime(0) +
+                    " T: " + restaurant.getClosingTime(1) +
+                    " W: " + restaurant.getClosingTime(2) +
+                    " T: " + restaurant.getClosingTime(3) +
+                    " F: " + restaurant.getClosingTime(4) +
+                    " S: " + restaurant.getClosingTime(5) +
+                    " S: " + restaurant.getClosingTime(6));
+        }
+        dialogBuilder.setCancelable(true);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
     }
 }

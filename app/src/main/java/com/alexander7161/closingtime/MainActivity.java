@@ -30,15 +30,17 @@ public class MainActivity extends AppCompatActivity {
         //find views
         listView = findViewById(R.id.restaurantListView);
         //set up adapter
-        listAdapter = new RestaurantListAdapter(getApplicationContext(), this,restaurants);
+        listAdapter = new RestaurantListAdapter(this, this,restaurants);
         listView.setAdapter(listAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                taskClicked((Restaurant)listAdapter.getItem(i));
-            }
-        });
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//
+//                taskClicked((Restaurant)listAdapter.getItem(i));
+//            }
+//        });
+
 
         //initial refresh
         refreshTasks();
@@ -50,22 +52,6 @@ public class MainActivity extends AppCompatActivity {
         refreshTasks();
     }
 
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-//        switch (item.getItemId()){
-//            case R.id.createTask:
-//                Intent createTaskIntent = new Intent(TaskListActivity.this,EditTaskActivity.class);
-//                startActivity(createTaskIntent);
-//                return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-        return false;
-    }
-
-
     private void refreshTasks()
     {
         DbHelper dbHelper = new DbHelper(getApplicationContext());
@@ -73,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         restaurants = dbHelper.getAllRestaurants(dbHelper);
         listAdapter.setTasks(restaurants);
         listAdapter.notifyDataSetInvalidated();
+        dbHelper.close();
     }
 
 
