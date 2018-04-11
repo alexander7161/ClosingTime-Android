@@ -1,25 +1,18 @@
 package com.alexander7161.closingtime;
 
 import android.content.ContentValues;
-import android.content.PeriodicSync;
 import android.database.Cursor;
-
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
-import org.joda.time.ReadableDuration;
-import org.joda.time.ReadablePeriod;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/*
+/**
 Restaurant Model object
  */
-
 public class Restaurant
 {
     private long id = -1;    //If the id == -1, the Restaurant object has never entered the database yet
@@ -41,7 +34,7 @@ public class Restaurant
         this.longAddress = longAddress;
     }
 
-    /*
+    /**
     Constructor - creating a Restaurant object from an entry in the database
      */
     public Restaurant(Cursor input, DbHelper dbHelper)
@@ -49,7 +42,7 @@ public class Restaurant
         id = input.getLong(input.getColumnIndex("ID"));
         name = input.getString(input.getColumnIndex("NAME"));
         address = input.getString(input.getColumnIndex("ADDRESS"));
-        //longAddress = input.getString(input.getColumnIndex("LONGADDRESS"));
+        longAddress = input.getString(input.getColumnIndex("LONGADDRESS"));
         Cursor details = dbHelper.getRestaurantDetails(this);
         if(details.moveToFirst()) {
             do {
@@ -74,7 +67,7 @@ public class Restaurant
         digits.add(num % 10);
     }
 
-    /*
+    /**
     Represent our Restaurant data as a ContentValues object - for easy insertion into the database
      */
     public ContentValues getContentValues()

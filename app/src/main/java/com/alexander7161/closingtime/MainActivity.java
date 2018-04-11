@@ -1,16 +1,8 @@
 package com.alexander7161.closingtime;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
-
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,15 +25,6 @@ public class MainActivity extends AppCompatActivity {
         listAdapter = new RestaurantListAdapter(this, this,restaurants);
         listView.setAdapter(listAdapter);
 
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//
-//                taskClicked((Restaurant)listAdapter.getItem(i));
-//            }
-//        });
-
-
         //initial refresh
         refreshTasks();
     }
@@ -55,34 +38,10 @@ public class MainActivity extends AppCompatActivity {
     private void refreshTasks()
     {
         DbHelper dbHelper = new DbHelper(getApplicationContext());
-        dbHelper.insertWasabiRestaurants();
         restaurants = dbHelper.getAllRestaurants(dbHelper);
         listAdapter.setTasks(restaurants);
         listAdapter.notifyDataSetInvalidated();
         dbHelper.close();
     }
 
-
-    private void taskClicked(final Restaurant restaurant)
-    {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-
-
-        //If the task has a message, display it in the dialog box
-        if(restaurant.getAddress() != null && restaurant.getAddress().length() > 0)
-        {
-            dialogBuilder.setMessage(restaurant.getAddress() +
-                    " M: " + restaurant.getClosingTime(0) +
-                    " T: " + restaurant.getClosingTime(1) +
-                    " W: " + restaurant.getClosingTime(2) +
-                    " T: " + restaurant.getClosingTime(3) +
-                    " F: " + restaurant.getClosingTime(4) +
-                    " S: " + restaurant.getClosingTime(5) +
-                    " S: " + restaurant.getClosingTime(6));
-        }
-        dialogBuilder.setCancelable(true);
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.show();
-    }
 }

@@ -4,15 +4,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteTableLockedException;
+import android.os.AsyncTask;
 import android.util.Log;
-
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
-
-/*
+/**
 Custom Database Helper to store Restaurant object
  */
 public class DbHelper extends SQLiteOpenHelper
@@ -22,7 +22,7 @@ public class DbHelper extends SQLiteOpenHelper
     public static final String DB_NAME = "DB";
     public static final int DB_VERSION = 1;
 
-    /*
+    /**
     DBHelper Constructor
      */
     public DbHelper(Context context)
@@ -30,7 +30,7 @@ public class DbHelper extends SQLiteOpenHelper
         super(context,DB_NAME,null,DB_VERSION);
     }
 
-    /*
+    /**
     Called when database is first created.
     We will consider this as upgrading from version O to version 1.
      */
@@ -40,7 +40,7 @@ public class DbHelper extends SQLiteOpenHelper
         onUpgrade(sqLiteDatabase, 0, DB_VERSION);
     }
 
-    /*
+    /**
     Called when updating the database from an oldVersion to a newVersion
      */
     @Override
@@ -68,6 +68,7 @@ public class DbHelper extends SQLiteOpenHelper
                 sqLiteDatabase.execSQL("INSERT INTO RESTAURANTS VALUES" +
                         "(1, 'Wasabi', 'Kingsway', 'Wasabi 19 kingsway, Holborn, WC2B 6UN')," +
                         "(2, 'Wasabi', 'Borough', 'wasabi 59-61 Borough High St, London SE1 1NE');");
+                //insertWasabiRestaurants(sqLiteDatabase);
                 sqLiteDatabase.execSQL("INSERT INTO RESTAURANTSHALFOFF VALUES " +
                         "(1, 1, 12345, 50, '20:30', '00:30')," +
                         "(2, 2, 123456, 50, '21:30', '00:30')," +
@@ -83,10 +84,9 @@ public class DbHelper extends SQLiteOpenHelper
         }
     }
 
-    /*
+    /**
     Query method to retrieve the list of incomplete Tasks in the database an an ArrayList
      */
-
     public ArrayList<Restaurant> getAllRestaurants(DbHelper dbHelper)
     {
         ArrayList<Restaurant> output = new ArrayList<>();
@@ -131,14 +131,47 @@ public class DbHelper extends SQLiteOpenHelper
         return rawDetails;
     }
 
-    public void insertWasabiRestaurants() {
-        try {
-            JSONObject json = JsonReader.readJsonFromUrl("http://motyar.info/webscrapemaster/api/?url=https://wasabi.uk.com/50-30-minutes-closing&xpath=//div[@id=node-1656]/div/div/div/div/p[4]/a");
-            Log.d("Json", json.toString());
-            Log.d("id", json.get("id").toString());
-        } catch (Exception e ) {
-
-        }
+    public void insertWasabiRestaurants(SQLiteDatabase sqLiteDatabase) {
+        new InsertWasabiRestaurantsTask(sqLiteDatabase).execute("http://motyar.info/webscrapemaster/api/?url=https://wasabi.uk.com/50-30-minutes-closing&xpath=//div[@id=node-1656]/div/div/div/div/p[4]/a");
     }
 
+}
+class InsertWasabiRestaurantsTask extends AsyncTask<String, Void, JSONArray> {
+
+    private SQLiteDatabase sqLiteDatabase;
+
+    public InsertWasabiRestaurantsTask(SQLiteDatabase sqLiteDatabase) {
+        this.sqLiteDatabase = sqLiteDatabase;
+    }
+
+    protected JSONArray doInBackground(String... strings) {
+        JSONArray object = null;
+            try {
+                object = com.alexander7161.closingtime.JsonReader.readJsonFromUrl(strings[0]);
+            } catch (Exception e) {
+                Log.e("error", e.toString());
+            }
+        return object;
+    }
+
+    @Override
+    protected void onPostExecute(JSONArray json) {
+        super.onPostExecute(json);
+        try {
+            String insert = "";
+            for(int n = 0; n < json.length()-1; n++)
+            {
+                JSONObject object = json.getJSONObject(n);
+                String text = (String) object.get("text");
+                insert = insert + "("+ n+3 + ", 'Wasabi', "+ text + ", " + text + "),";
+            }
+            JSONObject object = json.getJSONObject(json.length()-1);
+            String text = (String) object.get("text");
+            insert = insert + "("+ json.length()+3 + ", 'Wasabi', "+ text + ", " + text + ");";
+            sqLiteDatabase.execSQL("INSERT INTO RESTAURANTS VALUES" +
+                    insert);
+        } catch (Exception e) {
+            Log.e("error", e.toString());
+        }
+    }
 }
