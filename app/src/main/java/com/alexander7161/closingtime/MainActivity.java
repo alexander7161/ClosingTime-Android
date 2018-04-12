@@ -59,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         ArrayList<Restaurant> restaurants = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            Restaurant restaurant = new Restaurant(document.getString("Name"), document.getString("Address"), document.getString("LongAddress"));
+                            Restaurant restaurant = new Restaurant(document.getString("Name"), document.getString("Address"), document.getString("LongAddress"), (ArrayList<String>) document.get("ClosingTimes"), (ArrayList<Long>) document.get("PercentOffs"), (ArrayList<String>) document.get("DiscountPeriods"));
                             restaurants.add(restaurant);
-                            Log.d("rest",restaurant.getAddress());
+                            Log.d("rest",document.get("PercentOffs").getClass().toString());
                         }
                         listAdapter.setTasks(restaurants);
                         listAdapter.notifyDataSetInvalidated();

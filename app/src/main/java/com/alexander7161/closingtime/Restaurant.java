@@ -21,44 +21,47 @@ public class Restaurant
     private String longAddress;
     private ArrayList<String> closingTimes = new ArrayList<>();
     private ArrayList<String> halfOffPeriods = new ArrayList<>();
-    private ArrayList<Integer> percentOffs = new ArrayList<>();
+    private ArrayList<Long> percentOffs = new ArrayList<>();
 
 
     /*
     Constructor - creating a Restaurant object from scratch
      */
-    public Restaurant(String name, String address, String longAddress)
+    public Restaurant(String name, String address, String longAddress, ArrayList<String> closingTimes, ArrayList<Long> percentOffs, ArrayList<String> halfOffPeriods)
     {
         this.name = name;
         this.address = address;
         this.longAddress = longAddress;
+        this.closingTimes = closingTimes;
+        this.halfOffPeriods = halfOffPeriods;
+        this.percentOffs = percentOffs;
     }
 
     /**
     Constructor - creating a Restaurant object from an entry in the database
      */
-    public Restaurant(Cursor input, DbHelper dbHelper)
-    {
-        id = input.getLong(input.getColumnIndex("ID"));
-        name = input.getString(input.getColumnIndex("NAME"));
-        address = input.getString(input.getColumnIndex("ADDRESS"));
-        longAddress = input.getString(input.getColumnIndex("LONGADDRESS"));
-        Cursor details = dbHelper.getRestaurantDetails(this);
-        if(details.moveToFirst()) {
-            do {
-                int daysOfWeekInt = details.getInt(details.getColumnIndex("DAYSOFWEEK"));
-                ArrayList<Integer> daysOfWeek = new ArrayList<>();
-                collectDigits(daysOfWeekInt, daysOfWeek);
-                for (Integer i : daysOfWeek) {
-                    closingTimes.add(i - 1, details.getString(details.getColumnIndex("CLOSINGTIME")));
-                    halfOffPeriods.add(i -1, details.getString(details.getColumnIndex("HALFOFFPERIOD")));
-                    percentOffs.add(i-1, details.getInt(details.getColumnIndex("PERCENTOFF")));
-
-                }
-            } while (details.moveToNext());
-        }
-        details.close();
-    }
+//    public Restaurant(Cursor input, DbHelper dbHelper)
+//    {
+//        id = input.getLong(input.getColumnIndex("ID"));
+//        name = input.getString(input.getColumnIndex("NAME"));
+//        address = input.getString(input.getColumnIndex("ADDRESS"));
+//        longAddress = input.getString(input.getColumnIndex("LONGADDRESS"));
+//        Cursor details = dbHelper.getRestaurantDetails(this);
+//        if(details.moveToFirst()) {
+//            do {
+//                int daysOfWeekInt = details.getInt(details.getColumnIndex("DAYSOFWEEK"));
+//                ArrayList<Integer> daysOfWeek = new ArrayList<>();
+//                collectDigits(daysOfWeekInt, daysOfWeek);
+//                for (Integer i : daysOfWeek) {
+//                    closingTimes.add(i - 1, details.getString(details.getColumnIndex("CLOSINGTIME")));
+//                    halfOffPeriods.add(i -1, details.getString(details.getColumnIndex("HALFOFFPERIOD")));
+//                    percentOffs.add(i-1, details.getInt(details.getColumnIndex("PERCENTOFF")));
+//
+//                }
+//            } while (details.moveToNext());
+//        }
+//        details.close();
+//    }
 
     private static void collectDigits(int num, List<Integer> digits) {
         if(num / 10 > 0) {
@@ -111,32 +114,34 @@ public class Restaurant
         return LocalTime.parse(closingTimes.get(index)).toString("HH:mm");
     }
 
-//    public String getCurrentDiscount() {
-//        LocalTime localTime = new LocalTime();
-//        DateTime dateTime = new DateTime();
-//        int index = dateTime.getDayOfWeek() - 1;
-//        if(percentOffs.size()-1<index) {
-//            return "No Discount Today";
-//        }
-//        int percentOff = percentOffs.get(index);
-//        LocalTime closingTime = LocalTime.parse(closingTimes.get(index));
-//        PeriodFormatter formatter = new PeriodFormatterBuilder()
-//                .appendHours().appendSuffix(":")
-//                .appendMinutes()
-//                .toFormatter();
-//        Period dur = Period.parse(halfOffPeriods.get(index), formatter);
-//        LocalTime startHalfOff = closingTime.minus(dur);
-//
-//        if(localTime.isAfter(startHalfOff) && localTime.isBefore(closingTime)) {
-//            return percentOff + "% off from " + startHalfOff.toString("HH:mm") + " to " + closingTime.toString("HH:mm");
-//        } else if (localTime.isBefore(startHalfOff)) {
-//            return percentOff + "% off starts at " + startHalfOff.toString("HH:mm");
-//        } else if (localTime.isAfter(closingTime)) {
-//            return percentOff + "% ended at " + closingTime.toString("HH:mm");
-//        } else {
-//            return "";
-//        }
-//    }
+    public String getCurrentDiscount() {
+        LocalTime localTime = new LocalTime();
+        DateTime dateTime = new DateTime();
+        int index = dateTime.getDayOfWeek() - 1;
+        try {
+            closingTimes.get(index);
+        } catch (IndexOutOfBoundsException e) {
+            return "Restaurant Closed Today";
+        }
+        long percentOff = percentOffs.get(index);
+        LocalTime closingTime = LocalTime.parse(closingTimes.get(index));
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .appendHours().appendSuffix(":")
+                .appendMinutes()
+                .toFormatter();
+        Period dur = Period.parse(halfOffPeriods.get(index), formatter);
+        LocalTime startHalfOff = closingTime.minus(dur);
+
+        if(localTime.isAfter(startHalfOff) && localTime.isBefore(closingTime)) {
+            return percentOff + "% off from " + startHalfOff.toString("HH:mm") + " to " + closingTime.toString("HH:mm");
+        } else if (localTime.isBefore(startHalfOff)) {
+            return percentOff + "% off starts at " + startHalfOff.toString("HH:mm");
+        } else if (localTime.isAfter(closingTime)) {
+            return percentOff + "% ended at " + closingTime.toString("HH:mm");
+        } else {
+            return "";
+        }
+    }
 
     @Override
     public String toString() {

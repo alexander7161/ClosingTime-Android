@@ -66,7 +66,7 @@ public class RestaurantListAdapter extends BaseAdapter {
 
         title.setText(restaurant.getName());
         dueDate.setText(restaurant.getAddress());
-        //todayTime.setText(restaurant.getCurrentDiscount());
+        todayTime.setText(restaurant.getCurrentDiscount());
 
         Button navigateButton = v.findViewById(R.id.navigate_button);
 
