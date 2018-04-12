@@ -66,24 +66,18 @@ public class RestaurantListAdapter extends BaseAdapter {
 
         title.setText(restaurant.getName());
         dueDate.setText(restaurant.getAddress());
-        todayTime.setText(restaurant.getCurrentDiscount());
+        //todayTime.setText(restaurant.getCurrentDiscount());
 
         Button navigateButton = v.findViewById(R.id.navigate_button);
 
-        navigateButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Uri gmmIntentUri = Uri.parse("google.navigation:q=" + restaurant.getLongAddress());
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                context.startActivity(mapIntent);
-            }
+        navigateButton.setOnClickListener(v1 -> {
+            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + restaurant.getLongAddress());
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            context.startActivity(mapIntent);
         });
 
-        v.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                taskClicked((Restaurant) getItem(i));
-            }
-        });
+        v.setOnClickListener(v12 -> taskClicked((Restaurant) getItem(i)));
 
         return v;
     }

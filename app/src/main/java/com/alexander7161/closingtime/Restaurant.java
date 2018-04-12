@@ -27,10 +27,10 @@ public class Restaurant
     /*
     Constructor - creating a Restaurant object from scratch
      */
-    public Restaurant(String title, String notes, String longAddress)
+    public Restaurant(String name, String address, String longAddress)
     {
-        this.name = title;
-        this.address = notes;
+        this.name = name;
+        this.address = address;
         this.longAddress = longAddress;
     }
 
@@ -111,32 +111,32 @@ public class Restaurant
         return LocalTime.parse(closingTimes.get(index)).toString("HH:mm");
     }
 
-    public String getCurrentDiscount() {
-        LocalTime localTime = new LocalTime();
-        DateTime dateTime = new DateTime();
-        int index = dateTime.getDayOfWeek() - 1;
-        if(percentOffs.size()-1<index) {
-            return "No Discount Today";
-        }
-        int percentOff = percentOffs.get(index);
-        LocalTime closingTime = LocalTime.parse(closingTimes.get(index));
-        PeriodFormatter formatter = new PeriodFormatterBuilder()
-                .appendHours().appendSuffix(":")
-                .appendMinutes()
-                .toFormatter();
-        Period dur = Period.parse(halfOffPeriods.get(index), formatter);
-        LocalTime startHalfOff = closingTime.minus(dur);
-
-        if(localTime.isAfter(startHalfOff) && localTime.isBefore(closingTime)) {
-            return percentOff + "% off from " + startHalfOff.toString("HH:mm") + " to " + closingTime.toString("HH:mm");
-        } else if (localTime.isBefore(startHalfOff)) {
-            return percentOff + "% off starts at " + startHalfOff.toString("HH:mm");
-        } else if (localTime.isAfter(closingTime)) {
-            return percentOff + "% ended at " + closingTime.toString("HH:mm");
-        } else {
-            return "";
-        }
-    }
+//    public String getCurrentDiscount() {
+//        LocalTime localTime = new LocalTime();
+//        DateTime dateTime = new DateTime();
+//        int index = dateTime.getDayOfWeek() - 1;
+//        if(percentOffs.size()-1<index) {
+//            return "No Discount Today";
+//        }
+//        int percentOff = percentOffs.get(index);
+//        LocalTime closingTime = LocalTime.parse(closingTimes.get(index));
+//        PeriodFormatter formatter = new PeriodFormatterBuilder()
+//                .appendHours().appendSuffix(":")
+//                .appendMinutes()
+//                .toFormatter();
+//        Period dur = Period.parse(halfOffPeriods.get(index), formatter);
+//        LocalTime startHalfOff = closingTime.minus(dur);
+//
+//        if(localTime.isAfter(startHalfOff) && localTime.isBefore(closingTime)) {
+//            return percentOff + "% off from " + startHalfOff.toString("HH:mm") + " to " + closingTime.toString("HH:mm");
+//        } else if (localTime.isBefore(startHalfOff)) {
+//            return percentOff + "% off starts at " + startHalfOff.toString("HH:mm");
+//        } else if (localTime.isAfter(closingTime)) {
+//            return percentOff + "% ended at " + closingTime.toString("HH:mm");
+//        } else {
+//            return "";
+//        }
+//    }
 
     @Override
     public String toString() {

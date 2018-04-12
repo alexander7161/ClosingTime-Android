@@ -54,7 +54,7 @@ public class DbHelper extends SQLiteOpenHelper
             case 0:
                 //create intiial database using SQL
                 sqLiteDatabase.execSQL("CREATE TABLE RESTAURANTS (" +
-                        "ID INTEGER PRIMARY KEY NOT NULL," +
+                        "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                         "NAME TEXT NOT NULL," +
                         "ADDRESS TEXT NOT NULL," +
                         "LONGADDRESS TEXT NOT NULL" +
@@ -68,15 +68,15 @@ public class DbHelper extends SQLiteOpenHelper
                         "HALFOFFPERIOD TIME NOT NULL," +
                         "FOREIGN KEY (IDRESTAURANT) REFERENCES RESTAURANTS(ID)" +
                         ");");
-                insertWasabiRestaurants(sqLiteDatabase);
-//                sqLiteDatabase.execSQL("INSERT INTO RESTAURANTS VALUES" +
-//                        "(1, 'Wasabi', 'Kingsway', 'Wasabi 19 kingsway, Holborn, WC2B 6UN')," +
-//                        "(2, 'Wasabi', 'Borough', 'wasabi 59-61 Borough High St, London SE1 1NE');");
-//                sqLiteDatabase.execSQL("INSERT INTO RESTAURANTSHALFOFF VALUES " +
-//                        "(1, 1, 12345, 50, '20:30', '00:30')," +
-//                        "(2, 2, 123456, 50, '21:30', '00:30')," +
-//                        "(3, 2, 7, 50, '20:00', '00:30')" +
-//                        ";");
+                //insertWasabiRestaurants(sqLiteDatabase);
+                sqLiteDatabase.execSQL("INSERT INTO RESTAURANTS (NAME, ADDRESS, LONGADDRESS) VALUES" +
+                        "('Wasabi', 'Kingsway', 'Wasabi 19 kingsway, Holborn, WC2B 6UN')," +
+                        "('Wasabi', 'Borough', 'wasabi 59-61 Borough High St, London SE1 1NE');");
+                sqLiteDatabase.execSQL("INSERT INTO RESTAURANTSHALFOFF (IDRESTAURANT, DAYSOFWEEK, PERCENTOFF, CLOSINGTIME, HALFOFFPERIOD) VALUES " +
+                        "(1, 12345, 50, '20:30', '00:30')," +
+                        "(2, 123456, 50, '21:30', '00:30')," +
+                        "(2, 7, 50, '20:00', '00:30')" +
+                        ";");
             case 1:
 
             case 2:
