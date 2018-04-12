@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
         restaurants = dbHelper.getAllRestaurants(dbHelper);
         listAdapter.setTasks(restaurants);
         listAdapter.notifyDataSetInvalidated();
-        dbHelper.close();
     }
 
 }

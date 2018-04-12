@@ -115,6 +115,9 @@ public class Restaurant
         LocalTime localTime = new LocalTime();
         DateTime dateTime = new DateTime();
         int index = dateTime.getDayOfWeek() - 1;
+        if(percentOffs.size()-1<index) {
+            return "No Discount Today";
+        }
         int percentOff = percentOffs.get(index);
         LocalTime closingTime = LocalTime.parse(closingTimes.get(index));
         PeriodFormatter formatter = new PeriodFormatterBuilder()

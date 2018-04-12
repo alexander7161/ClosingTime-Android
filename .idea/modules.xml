@@ -4,8 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../../../../Alexander/Documents/Projects/ClosingTime/ClosingTime-Android/ClosingTime.iml" filepath="$PROJECT_DIR$/../../../../Alexander/Documents/Projects/ClosingTime/ClosingTime-Android/ClosingTime.iml" />
       <module fileurl="file://$PROJECT_DIR$/ClosingTime-Android.iml" filepath="$PROJECT_DIR$/ClosingTime-Android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ClosingTime-Android.iml" filepath="$PROJECT_DIR$/ClosingTime-Android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
