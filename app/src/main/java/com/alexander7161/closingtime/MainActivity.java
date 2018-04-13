@@ -52,6 +52,16 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(listAdapter);
 
 
+        refreshRestaurants();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshRestaurants();
+    }
+
+    private void refreshRestaurants() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Restaurants")
                 .get()
@@ -69,13 +79,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "Error getting documents: ", task.getException());
                     }
                 });
-
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
 
 }
