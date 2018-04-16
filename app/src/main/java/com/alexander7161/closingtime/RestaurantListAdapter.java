@@ -18,7 +18,7 @@ public class RestaurantListAdapter extends BaseAdapter {
     private Context context;
     //Data
     private Activity activity;
-    private ArrayList<Restaurant> restaurants = null;
+    private ArrayList<Restaurant> restaurants;
 
     public RestaurantListAdapter(Context context, Activity activity, ArrayList<Restaurant> restaurants)
     {
