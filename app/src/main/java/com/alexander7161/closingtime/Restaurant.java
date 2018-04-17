@@ -83,6 +83,37 @@ public class Restaurant
         }
     }
 
+    public boolean getCurrentDiscountBoolean() {
+        LocalTime localTime = new LocalTime();
+        DateTime dateTime = new DateTime();
+        int index = dateTime.getDayOfWeek() - 1;
+        try {
+            if(closingTimes.get(index).equals("")) {
+                return false;
+            }
+        } catch (IndexOutOfBoundsException | NullPointerException e) {
+            return false;
+        }
+        long percentOff = percentOffs.get(index);
+        LocalTime closingTime = LocalTime.parse(closingTimes.get(index));
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .appendHours().appendSuffix(":")
+                .appendMinutes()
+                .toFormatter();
+        Period dur = Period.parse(halfOffPeriods.get(index), formatter);
+        LocalTime startHalfOff = closingTime.minus(dur);
+
+        if(localTime.isAfter(startHalfOff) && localTime.isBefore(closingTime)) {
+            return true;
+        } else if (localTime.isBefore(startHalfOff)) {
+            return false;
+        } else if (localTime.isAfter(closingTime)) {
+            return false;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public String toString() {
         return getName() + " " +  getAddress() + " " + " Monday: " + getClosingTime(1);

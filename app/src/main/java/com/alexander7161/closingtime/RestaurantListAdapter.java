@@ -3,6 +3,7 @@ package com.alexander7161.closingtime;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -64,6 +65,12 @@ public class RestaurantListAdapter extends BaseAdapter {
         TextView todayTime = v.findViewById(R.id.today_time);
         final Restaurant restaurant = (Restaurant) getItem(i);
 
+
+        if(restaurant.getCurrentDiscountBoolean()) {
+            v.setBackgroundColor(Color.parseColor("#008000"));
+        } else {
+            v.setBackgroundColor(Color.WHITE);
+        }
         title.setText(restaurant.getName());
         dueDate.setText(restaurant.getAddress());
         todayTime.setText(restaurant.getCurrentDiscount());
