@@ -18,7 +18,7 @@ public class RestaurantListAdapter extends BaseAdapter {
     private Context context;
     //Data
     private Activity activity;
-    private ArrayList<Restaurant> restaurants = null;
+    private ArrayList<Restaurant> restaurants;
 
     public RestaurantListAdapter(Context context, Activity activity, ArrayList<Restaurant> restaurants)
     {
@@ -47,9 +47,9 @@ public class RestaurantListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int i) {
-        Restaurant r = (Restaurant) getItem(i);
-        return r == null ? -1 : r.getId();
+        return i;
     }
+
 
     @Override
     public View getView(final int i, View view, ViewGroup viewGroup) {
