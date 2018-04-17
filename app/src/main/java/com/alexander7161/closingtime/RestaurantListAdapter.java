@@ -47,9 +47,9 @@ public class RestaurantListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int i) {
-        Restaurant r = (Restaurant) getItem(i);
-        return r == null ? -1 : r.getId();
+        return i;
     }
+
 
     @Override
     public View getView(final int i, View view, ViewGroup viewGroup) {

@@ -12,7 +12,6 @@ Restaurant Model object
  */
 public class Restaurant
 {
-    private long id = -1;    //If the id == -1, the Restaurant object has never entered the database yet
     private String name;
     private String address;
     private String longAddress;
@@ -34,15 +33,6 @@ public class Restaurant
         this.percentOffs = percentOffs;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id)
-    {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -54,8 +44,8 @@ public class Restaurant
     public String getLongAddress() {return longAddress;}
 
     public String getClosingTime(int index) {
-        if(index>closingTimes.size()-1) {
-            return "Closed";
+        if(index>closingTimes.size()-1|| closingTimes.get(index).equals("")) {
+            return "No discount.";
         }
         return LocalTime.parse(closingTimes.get(index)).toString("HH:mm");
     }
@@ -65,11 +55,13 @@ public class Restaurant
         DateTime dateTime = new DateTime();
         int index = dateTime.getDayOfWeek() - 1;
         try {
-            if(closingTimes.get(index)=="") {
+            if(closingTimes.get(index).equals("")) {
                 return "Restaurant Closed Today";
             }
         } catch (IndexOutOfBoundsException e) {
             return "Restaurant Closed Today";
+        } catch (NullPointerException e) {
+            return e.toString();
         }
         long percentOff = percentOffs.get(index);
         LocalTime closingTime = LocalTime.parse(closingTimes.get(index));
