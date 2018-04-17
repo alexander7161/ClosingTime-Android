@@ -23,6 +23,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +107,8 @@ public class MainActivity extends AppCompatActivity {
                             Restaurant restaurant = new Restaurant(document.getString("Name"), document.getString("Address"), document.getString("LongAddress"), (ArrayList<String>) document.get("ClosingTimes"), (ArrayList<Long>) document.get("PercentOffs"), (ArrayList<String>) document.get("DiscountPeriods"));
                             restaurants.add(restaurant);
                         }
+                        // Sort by currently discounted first.
+                        restaurants.sort((a, b) -> Boolean.compare(b.getCurrentDiscountBoolean(), a.getCurrentDiscountBoolean()));
                         listAdapter.setTasks(restaurants);
                         listAdapter.notifyDataSetInvalidated();
                     } else {
