@@ -140,19 +140,23 @@ class InsertWasabiRestaurantsTask extends AsyncTask<String, Void, JSONArray> {
     protected void onPostExecute(JSONArray json) {
         super.onPostExecute(json);
         try {
-            for(int n = 0; n < json.length()-1; n++)
-            {
+            for (int n = 0; n < json.length() - 1; n++) {
                 Map<String, Object> restaurant = new HashMap<>();
                 JSONObject object = json.getJSONObject(n);
                 String text = (String) object.get("text");
+                if (text.contains("&#39;")) {
+                    text = text.replace("&#39;", "'");
+                }
                 String id = Integer.toString(n + 1);
                 restaurant.put("Name", "Wasabi");
                 restaurant.put("Address", text);
                 restaurant.put("LongAddress", "Wasabi " + text);
-                if(object.get("href").equals("https://wasabi.uk.com/branches/1649")) {
+                if (object.get("href").equals("https://wasabi.uk.com/branches/1649")) {
                     new InsertWasabiDetailsTask(Integer.parseInt(id), restaurant).execute("http://motyar.info/webscrapemaster/api/?url=https://wasabi.uk.com/branches/1649&xpath=//div[@id=branches]/div[2]/div/div[2]/div[5]#vws");
+                } else if(object.get("href").equals("https://wasabi.uk.com/branches/1303")) {
+                    new InsertWasabiDetailsTask(Integer.parseInt(id), restaurant).execute("http://motyar.info/webscrapemaster/api/?url=https://wasabi.uk.com/branches/1303&xpath=//div[@id=branches]/div[2]/div/div[2]/div[7]#vws");
                 } else {
-                    new InsertWasabiDetailsTask(Integer.parseInt(id), restaurant).execute("http://motyar.info/webscrapemaster/api/?url=" + object.get("href") + "&xpath=//div[@id=branches]/div[2]/div/div[2]/div[7]#vws");
+                    new InsertWasabiDetailsTask(Integer.parseInt(id), restaurant).execute("http://motyar.info/webscrapemaster/api/?url=https://wasabi.uk.com" + object.get("href") + "&xpath=//div[@id=branches]/div[2]/div/div[2]/div[7]#vws");
                 }
             }
         } catch (Exception e) {
@@ -288,7 +292,7 @@ class InsertWasabiDetailsTask extends AsyncTask<String, Void, JSONArray> {
             }
 
             else if (openingHours.equals("Monday-Wednesday10:30-23:00Thursday-Saturday10:30-24:00Sunday10:30-23:00")) {
-                restaurant.put("ClosingTimes", Arrays.asList("23:00", "23:00", "23:00", "24:00", "24:00", "24:00", "23:00"));
+                restaurant.put("ClosingTimes", Arrays.asList("23:00", "23:00", "23:00", "00:00", "00:00", "00:00", "23:00"));
                 restaurant.put("PercentOffs", Arrays.asList(50, 50, 50, 50, 50, 50, 50));
                 restaurant.put("DiscountPeriods", Arrays.asList("00:30", "00:30", "00:30", "00:30", "00:30", "00:30", "00:30"));
             }
@@ -325,7 +329,7 @@ class InsertWasabiDetailsTask extends AsyncTask<String, Void, JSONArray> {
             }
 
             else if (openingHours.equals("Monday-Wednesday11:00-23:00Thursday-Saturday11:00-00:00Sunday11:00-23:00")) {
-                restaurant.put("ClosingTimes", Arrays.asList("23:00", "23:00", "23:00", "24:00", "24:00", "24:00", "23:00"));
+                restaurant.put("ClosingTimes", Arrays.asList("23:00", "23:00", "23:00", "00:00", "00:00", "00:00", "23:00"));
                 restaurant.put("PercentOffs", Arrays.asList(50, 50, 50, 50, 50, 50, 50));
                 restaurant.put("DiscountPeriods", Arrays.asList("00:30", "00:30", "00:30", "00:30", "00:30", "00:30", "00:30"));
             }
@@ -358,6 +362,14 @@ class InsertWasabiDetailsTask extends AsyncTask<String, Void, JSONArray> {
                 restaurant.put("ClosingTimes", Arrays.asList("22:00", "22:00", "22:00", "22:00", "23:00", "23:00", "21:00"));
                 restaurant.put("PercentOffs", Arrays.asList(50, 50, 50, 50, 50, 50, 50));
                 restaurant.put("DiscountPeriods", Arrays.asList("00:30", "00:30", "00:30", "00:30", "00:30", "00:30", "00:30"));
+            } else if (openingHours.equals("Monday-Friday10:30-21:00Saturday-Sunday12:00-17:30")) {
+                restaurant.put("ClosingTimes", Arrays.asList("21:00", "21:00", "21:00", "21:00", "21:00", "17:30", "17:30"));
+                restaurant.put("PercentOffs", Arrays.asList(50, 50, 50, 50, 50, 50, 50));
+                restaurant.put("DiscountPeriods", Arrays.asList("00:30", "00:30", "00:30", "00:30", "00:30", "00:30", "00:30"));
+            } else if (openingHours.equals("Monday-Saturday11:00-22:30Sunday11:00-20:30")) {
+                restaurant.put("ClosingTimes", Arrays.asList("22:30", "22:30", "22:30", "22:30", "22:30", "22:30", "20:30"));
+                restaurant.put("PercentOffs", Arrays.asList(50, 50, 50, 50, 50, 50, 50));
+                restaurant.put("DiscountPeriods", Arrays.asList("00:30", "00:30", "00:30", "00:30", "00:30", "00:30", "00:30"));
             }
 
             else {
@@ -371,7 +383,7 @@ class InsertWasabiDetailsTask extends AsyncTask<String, Void, JSONArray> {
                     .set(restaurant)
                     .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
                     .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
-            Log.d("Json", Integer.toString(id));
+            Log.d("Json", Integer.toString(id) + restaurant.get("Address"));
         } catch (Exception e) {
             Log.e("error", e.toString());
         }
