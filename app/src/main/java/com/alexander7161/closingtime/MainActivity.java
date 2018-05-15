@@ -1,5 +1,6 @@
 package com.alexander7161.closingtime;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,13 +17,17 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -152,9 +157,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void insertWasabiRestaurants() {
+    public void insertRestaurants() {
         new InsertWasabiRestaurantsTask().execute("http://motyar.info/webscrapemaster/api/?url=https://wasabi.uk.com/50-30-minutes-closing&xpath=//div[@id=node-1656]/div/div/div/div/p[4]/a");
-
+        new InsertItsuRestaurantsTask(getApplicationContext()).execute();
     }
 
 }
@@ -421,6 +426,232 @@ class InsertWasabiDetailsTask extends AsyncTask<String, Void, JSONArray> {
             Log.d("Json", Integer.toString(id) + restaurant.get("Address"));
         } catch (Exception e) {
             Log.e("error", e.toString());
+        }
+    }
+}
+
+class InsertItsuRestaurantsTask extends AsyncTask<Void, Void, JSONArray> {
+
+    private Context context;
+
+    public InsertItsuRestaurantsTask(Context context) {
+        this.context = context;
+    }
+
+    public String loadJSONFromAsset() {
+        String json = null;
+        try {
+            InputStream is = context.getResources().openRawResource(R.raw.itsu);
+
+            int size = is.available();
+
+            byte[] buffer = new byte[size];
+
+            is.read(buffer);
+
+            is.close();
+
+            json = new String(buffer, "UTF-8");
+
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
+
+    }
+
+    @Override
+    protected JSONArray doInBackground(Void... voids) {
+        JSONArray object = null;
+        try {
+            object = (JSONArray) new JSONArray(loadJSONFromAsset());
+        } catch (Exception e) {
+            Log.e("error", e.toString());
+        }
+        return object;
+    }
+
+    @Override
+    protected void onPostExecute(JSONArray json) {
+        super.onPostExecute(json);
+        try {
+            for (int n = 0; n < json.length() - 1; n++) {
+                Map<String, Object> restaurant = new HashMap<>();
+                JSONObject object = json.getJSONObject(n);
+                JSONArray array1 = object.getJSONArray("children");
+                JSONObject obj1 = array1.optJSONObject(1);                 //URL here
+                String url = obj1.getJSONArray("attributes").getJSONObject(0).getString("value");
+                JSONArray array2 = obj1.getJSONArray("children");
+                String address = array2.getJSONObject(1).getJSONArray("children").getJSONObject(0).getString("content");
+                address = address.substring(address.indexOf(".")+1,address.length()).trim();
+                JSONObject obj2 = array2.getJSONObject(3);
+                JSONArray array3 = obj2.getJSONArray("children");
+                String longAddress = array3.getJSONObject(0).getString("content");
+
+                String id = Integer.toString(n + 1);
+                restaurant.put("Name", "Itsu");
+                restaurant.put("Address", address);
+                restaurant.put("LongAddress", "Itsu " + longAddress);
+                Log.d("itsu" + id, address);
+                new InsertItsuDetailsTask(Integer.parseInt(id), restaurant).execute("http://motyar.info/webscrapemaster/api/?url="+ url +"&xpath=//ul[@id=hours]/li");
+            }
+        } catch (Exception e) {
+            Log.e("error", e.toString());
+        }
+    }
+}
+
+class InsertItsuDetailsTask extends AsyncTask<String, Void, JSONArray> {
+
+    private static final String TAG = "restaurant";
+    private int id;
+    private Map<String, Object> restaurant;
+
+
+    public InsertItsuDetailsTask(int id, Map<String, Object> restaurant) {
+        this.id = id;
+        this.restaurant = restaurant;
+
+    }
+
+    protected JSONArray doInBackground(String... strings) {
+        JSONArray object = null;
+        try {
+            object = (JSONArray) JsonReader.readJsonFromUrl(strings[0]);
+        } catch (Exception e) {
+            Log.e("error", e.toString());
+        }
+        return object;
+    }
+
+    @Override
+    protected void onPostExecute(JSONArray json) {
+        super.onPostExecute(json);
+        List<String> closingTimes = new ArrayList<>();
+        List<Integer> percentOffs = new ArrayList<>();
+        List<String> discountPeriods = new ArrayList<>();
+
+        try {
+            if(json.getJSONObject(0).getString("text").contains("flight")) {
+                // Airport Itsu, 30 minutes before last flight.
+                Log.d("Json", Integer.toString(id) + restaurant.get("Address") + "AIRPORTNOTADDED");
+                return;
+            }
+            if(json.getJSONObject(0).getString("text").contains("Bicester")) {
+                // Bicester doesn't offer 50% off.
+                Log.d("Json", Integer.toString(id) + restaurant.get("Address") + "BICESTERNOTADDED");
+                return;
+            }
+            if(json.getJSONObject(7).getString("text").contains("half")) {
+                for(int i = 0; i<7;i++) {
+                    String s = json.getJSONObject(i).getString("text");
+                    s = s.replace(".", ":");
+                    s = s.replace("(breakfast until 10am)", "");
+                    if(s.contains("closed")) {
+                        closingTimes.add("");
+                        percentOffs.add(null);
+                        discountPeriods.add("");
+                    } else {
+                        String time = s.split("-")[1].trim();
+                        if(time.contains("pm")) {
+                            if(time.contains("30")) {
+                                int closingTime = Integer.parseInt(time.replace("pm", "").replace(":30", ""));
+                                if(closingTime<=12) {
+                                    closingTime += 12;
+                                }
+                                closingTimes.add(closingTime+":30");
+                                percentOffs.add(50);
+                                discountPeriods.add("00:30");
+
+                            } else {
+                                int closingTime = Integer.parseInt(time.replace("pm", "").replace(":00", ""));
+                                if(closingTime<=12) {
+                                    closingTime += 12;
+                                }
+                                closingTimes.add(closingTime + ":00");
+                                percentOffs.add(50);
+                                discountPeriods.add("00:30");
+                            }
+                        }
+                    }
+                }
+            } else if (json.getJSONObject(5).getString("text").contains("half")) {
+                for(int i = 0; i<5;i++) {
+                    String s = json.getJSONObject(i).getString("text");
+                    if (s.contains("closed")) {
+                        closingTimes.add("");
+                        percentOffs.add(null);
+                        discountPeriods.add("");
+                    } else {
+                        String time = s.split("-")[1].trim();
+                        if (time.contains("pm")) {
+                            if (time.contains("30")) {
+                                int closingTime = Integer.parseInt(time.replace("pm", "").replace(":30", ""));
+                                if(closingTime<=12) {
+                                    closingTime += 12;
+                                }
+                                closingTimes.add(closingTime + ":30");
+                                percentOffs.add(50);
+                                discountPeriods.add("00:30");
+
+                            } else {
+                                int closingTime = Integer.parseInt(time.replace("pm", ""));
+                                if(closingTime<=12) {
+                                    closingTime += 12;
+                                }
+                                closingTimes.add(closingTime + ":00");
+                                percentOffs.add(50);
+                                discountPeriods.add("00:30");
+                            }
+                        }
+                    }
+                }
+            } else if (json.getJSONObject(0).getString("text").contains("Cambridge")) {
+                for(int i = 1; i<8;i++) {
+                    String s = json.getJSONObject(i).getString("text");
+                    if (s.contains("closed")) {
+                        closingTimes.add("");
+                        percentOffs.add(null);
+                        discountPeriods.add("");
+                    } else {
+                        String time = s.split("-")[1].trim();
+                        if (time.contains("pm")) {
+                            if (time.contains("30")) {
+                                int closingTime = Integer.parseInt(time.replace("pm", "").replace(":30", ""));
+                                closingTime += 12;
+                                closingTimes.add(closingTime + ":30");
+                                percentOffs.add(50);
+                                discountPeriods.add("00:30");
+
+                            } else {
+                                int closingTime = Integer.parseInt(time.replace("pm", ""));
+                                closingTime += 12;
+                                closingTimes.add(closingTime + ":00");
+                                percentOffs.add(50);
+                                discountPeriods.add("00:30");
+                            }
+                        }
+                    }
+                }
+            } else {
+                // No half price sale.
+                Log.d("Json", Integer.toString(id) + restaurant.get("Address") + "NOHALFPRICENOTADDED");
+                return;
+            }
+                restaurant.put("ClosingTimes", closingTimes);
+                restaurant.put("PercentOffs", percentOffs);
+                restaurant.put("DiscountPeriods", discountPeriods);
+
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("Restaurants").document("itsu" + restaurant.get("Address").toString().replace(" ", ""))
+                    .set(restaurant)
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
+                    .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+            Log.d("Json", Integer.toString(id) + restaurant.get("Address"));
+        } catch (Exception e) {
+            Log.e("json", Integer.toString(id) + restaurant.get("Address") + e.toString());
         }
     }
 }

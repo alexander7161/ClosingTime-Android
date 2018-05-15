@@ -1,5 +1,7 @@
 package com.alexander7161.closingtime;
 
+import android.util.Log;
+
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
@@ -95,6 +97,9 @@ public class Restaurant
             return false;
         }
         long percentOff = percentOffs.get(index);
+        if(Integer.parseInt(closingTimes.get(index).split(":")[0]) > 23) {
+            Log.e("restaurantError", getName() + getAddress());
+        }
         LocalTime closingTime = LocalTime.parse(closingTimes.get(index));
         PeriodFormatter formatter = new PeriodFormatterBuilder()
                 .appendHours().appendSuffix(":")
